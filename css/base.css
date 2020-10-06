@@ -1,0 +1,73 @@
+/* 初始化文件 */
+*{
+    margin:0;
+    padding:0;
+    /* 怪异盒子模型 */
+    box-sizing: border-box;
+}
+
+
+body{
+    /* CSS3 抗锯齿形 让文字显示的更加清晰 */
+    -webkit-font-smoothing: antialiased;
+    background-color: #fff;
+    font: 12px/1.5 Microsoft YaHei, Heiti SC, tahoma, arial, Hiragino Sans GB, "\5B8B\4F53", sans-serif;
+    color: #666;
+}
+
+
+input{
+    border:0;
+    outline: none;
+    font-family: Microsoft YaHei, Heiti SC, tahoma, arial, Hiragino Sans GB, "\5B8B\4F53", sans-serif;
+}
+
+
+img{
+    border:0;
+    vertical-align: middle;
+}
+ul{
+    list-style: none;
+}
+a{
+    color: #666;
+    text-decoration: none;
+    /*取消a链接在移动端点击时出现背景高亮*/
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+a:hover{
+    color:#cb1623;
+}
+
+
+u,i,b{
+    font-style:normal;
+}
+
+
+.hide{
+    display: none;
+}
+
+
+.show{
+    display: block;
+}
+
+
+/* 清除浮动 */
+.clear::after{
+    content:'';
+    display: block;
+    clear:both;
+    height:0;
+    visibility: hidden;
+}
+
+
+.clear{
+    zoom: 1;
+}

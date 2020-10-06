@@ -1,15 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Hary的个人主页</h1>
-    <h3>创维幼儿园的舔狗日记</h3>
-    <a href="day1.html">第一天</a>
-    <a href="game.html">小游戏</a>
-    <br><img src="tdog.png"/>
-</body>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<title>Hary的个人主页</title>
+		<style type="text/css">
+			body {
+				text-align: center;
+			}
+
+			.box {
+				position: relative;
+				height: 282px;
+				width: 502px;
+				margin: 30px auto 0;
+				border: 1px solid red;
+				overflow: hidden;
+			}
+
+			.box ul {
+				position: absolute;
+				display: flex;
+				height: 100%;
+			}
+
+			.box ul li {
+				height: 100%;
+				width: 500px;
+			}
+
+			.box ul li img {
+				width: 500px;
+			}
+
+			.box ol {
+				list-style: none;
+				bottom: 0;
+				left: 50%;
+				transform: translateX(-50%);
+				display: flex;
+				margin-bottom: 10px;
+				position: absolute;
+			}
+
+			.box ol li {
+				cursor: pointer;
+				border: 1px solid pink;
+				height: 15px;
+				width: 15px;
+				margin-left: 10px;
+				border-radius: 50%;
+			}
+
+			.box ol .active {
+				background-color: pink;
+			}
+
+			.fang {
+				display: none;
+			}
+
+			.left {
+				position: absolute;
+				cursor: pointer;
+				left: 20px;
+				font-size: 48px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			.right {
+				position: absolute;
+				right: 20px;
+				font-size: 48px;
+				top: 50%;
+				cursor: pointer;
+				transform: translateY(-50%);
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<h1>Hary的个人主页</h1>
+			<h3>创维幼儿园的舔狗日记</h3>
+			<a href="day1.html">第一天</a>&nbsp;
+			<a href="game.html">小游戏</a>
+		</div>
+		<!-- 轮播图 -->
+		<div class="box">
+			<!-- 图片放置处 -->
+			<ul>
+				<li><img src="img/662.jpg"></li>
+				<li><img src="img/663.jpg"></li>
+				<li><img src="img/664.jpg"></li>
+				<li><img src="img/66图.jpg"></li>
+			</ul>
+			 <!-- 小方块 -->
+			<ol>
+			
+			</ol>
+			<!-- 左右俩边的点击小方块 -->
+			<div class="fang">
+				<div class="right">&gt;</div>
+				<div class="left">&lt;</div>		
+			</div>
+		</div>
+			<script type="text/javascript">
+				//获取元素
+				let OL = document.querySelector('ol');
+				let box = document.querySelector('.box');
+				let UL = document.querySelector('ul');
+				let ULlis = document.querySelectorAll('ul>li');
+				let fang = document.querySelector('.fang');
+				let left = document.querySelector('.left');
+				let right = document.querySelector('.right');
+				let timerId = null;
+				//声明一个变量设置节流阀
+				let flag = true;
+				//声明一个变量，记录图片的个数
+				let index = 0;
+				//声明一个变量，记录定时器的id
+				let timeId = null;
+				//生成小方块
+				for (let i = 0; i < ULlis.length; i++) {
+					let li = document.createElement('li');
+					OL.appendChild(li);
+				}
+				//获取所有的ol里的li元素
+				let OLlis = document.querySelectorAll('ol>li');
+				//给第一个ol里的小li添加类
+				OLlis[0].setAttribute('class', 'active');
+				//给所有的小方块进行排他思想
+				for (let j = 0; j < OLlis.length; j++) {
+					// 给所有小方块设置鼠标经过事件
+					OLlis[j].onmouseover = function() {
+						for (let a = 0; a < OLlis.length; a++) {
+							OLlis[a].removeAttribute('class');
+						}
+						OLlis[j].setAttribute('class', 'active');
+					}
+				}
+
+				//给所有的小方块设置一个鼠标经过事件
+				for (let i = 0; i < OLlis.length; i++) {
+					OLlis[i].setAttribute('inx', i);
+					OLlis[i].onclick = function() {
+						if (flag) {
+							flag = false;
+							clearInterval(timeId)
+							console.log(this);
+							//获取需要移动的距离
+							let ULleft = this.getAttribute('inx') * 500;
+							console.log(ULleft);
+							move(UL, ULleft, function() {
+								flag = true;
+								return flag
+							})
+							index = this.getAttribute('inx');
+						}
+					}
+				}
+				//克隆ul中的第一个小li
+				UL.appendChild(ULlis[0].cloneNode(true))
+				//鼠标经过显示左右点击的小方块
+				box.onmouseover = function() {
+					fang.style.display = 'block';
+					clearInterval(timerId);
+				}
+				//鼠标离开隐藏左右点击的小方块
+				box.onmouseout = function() {
+					fang.style.display = 'none';
+					timerId = setInterval(fn, 3000);
+				}
+				//给右点击小方块设置点击事件
+				right.onclick = function() {
+					fn();
+				}
+				//给左点击小方块设置点击事件
+				left.onclick = function() {
+					if (flag) {
+						flag = false;
+						clearInterval(timeId);
+						if (index == 0) {
+							index = 4;
+							UL.style.left = -2000 + 'px';
+						}
+						index--;
+						//获取当前的左定位值
+						let ulLeft = UL.offsetLeft;
+						console.log(ulLeft);
+						let ULleft = index * 500;
+						move(UL, ULleft, function() {
+							flag = true;
+							return flag
+						});
+						//小方块的排他
+						for (let a = 0; a < OLlis.length; a++) {
+							OLlis[a].removeAttribute('class');
+						}
+						if (index == 4) {
+							OLlis[0].setAttribute('class', 'active');
+						} else {
+							OLlis[index].setAttribute('class', 'active');
+						}
+					}
+
+				}
+				//给移动的动画设置一个封装函数
+				function move(ele, ULleft, fn) {
+					//获取当前的左定位值
+					let ulLeft = ele.offsetLeft;
+					//获取需要移动的距离
+					let Left = ULleft + ulLeft;
+					// 声明一个变量,记录移动的大小
+					let cun = 0;
+					//设置移动的步长,判断如果目标位置在当前位置的左边就是负的步长
+					let spt;
+					ULleft > -ulLeft ? spt = 13 : spt = -13;
+					//利用定时器进行移动
+					ele.timeId = setInterval(function() {
+						cun += spt;
+						// console.log(cun);
+						//先判断如果移动的大小和需要移动的大小差小于步长直接到达移动的大小
+						if (Math.abs(Left - cun) > Math.abs(spt)) {
+							UL.style.left = -cun + ulLeft + 'px';
+						} else {
+							UL.style.left = -ULleft + 'px';
+							clearInterval(ele.timeId);
+							fn();
+						}
+					}, 50)
+				}
+
+				function fn() {
+					if (flag) {
+						flag = false;
+						clearInterval(timeId);
+						index++;
+						if (index > 4) {
+							index = 1;
+							UL.style.left = 0 + 'px';
+						}
+						//获取当前的左定位值
+						let ulLeft = UL.offsetLeft;
+						//获取需要移动的距离
+						let ULleft = index * 500;
+						move(UL, ULleft, function() {
+							flag = true;
+							return flag
+						});
+						//小方块的排他
+						for (let a = 0; a < OLlis.length; a++) {
+							OLlis[a].removeAttribute('class');
+						}
+						if (index == 4) {
+							OLlis[0].setAttribute('class', 'active');
+						} else {
+							OLlis[index].setAttribute('class', 'active');
+						}
+					}
+				}
+				timerId = setInterval(fn, 3000);
+			</script>
+	</body>
 </html>

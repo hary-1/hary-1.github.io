@@ -43,9 +43,8 @@
 	</head>
 
 	<!-- ondragstart:防拖拽生成新页面 oncontextmenu:屏蔽右键菜单-->
-
 	<body ondragstart='return false' oncontextmenu='self.event.returnValue=false'>
-
+		<h1>这里的暂有问题，不要杠</h1>
 		<div id='bar'>
 			<span class='bar'>剩余雷数：<label id='count'>0</label></span>
 			<span class='bar'>计时：<label id='time'>0</label>s</span>
@@ -53,13 +52,13 @@
 		<table id='grid'></table>
 
 		<script>
-			var row = 30; //行数
-			var col = 40; //列数
-			var maxCount = 200; //最大地雷数量
-			var isFirstOpen = true; //第一次打开方格
-			var grid = init_grid(); //初始化
-			var count = document.getElementById('count'); //剩余雷数
-			var time = document.getElementById('time'); //计时
+			let row = 30; //行数
+			let col = 40; //列数
+			let maxCount = 200; //最大地雷数量
+			let isFirstOpen = true; //第一次打开方格
+			let grid = init_grid(); //初始化
+			let count = document.getElementById('count'); //剩余雷数
+			let time = document.getElementById('time'); //计时
 
 			//初始化矩阵 (row-行数 col-列数)
 			function init_grid() {
