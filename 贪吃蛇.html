@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style type="text/css">
+      .box {
+        width: 800px;
+        height: 500px;
+        margin: 100px auto;
+      }
+
+      button {
+        height: 50px;
+        width: 100px;
+        font-size: 20px;
+      }
+
+      .map {
+        margin: 100px auto;
+        width: 800px;
+        height: 400px;
+        background-color: #CCCCCC;
+        position: relative;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- //1，创建活动的范围 -->
+    <div class="box">
+      <button type="button" id="btn">开始游戏</button>
+      <button id="zanting">暂停游戏</button>
+      <div class="map"></div>
+    </div>
+    <script type="text/javascript">
+      let map = document.querySelector('.map');
+      //创建蛇
+      function Snake() {
+        //设置默认的宽，高
+        this.width = 10;
+        this.height = 10;
+        this.direction = 'right'; //起始的方向
+        //初始的蛇身节点数
+        this.body = [{
+            x: 2,
+            y: 0
+          },
+          {
+            x: 1,
+            y: 0
+          },
+          {
+            x: 0,
+            y: 0
+          }
+        ];
+        //显示蛇
+        this.display = function() {
+          for (let i = 0; i < this.body.length; i++) {
+            if (this.body[i].x != null) {
+              let div = document.createElement('div');
+              // 将节点保存到状态中，以便于后面删除
+              this.body[i].flag = div;
+              // 设置宽高
+              div.style.width = this.width + 'px';
+              div.style.height = this.height + 'px';
+              div.style.borderRadius = "50%";
+              div.style.background = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) +
+                "," + Math.floor(Math.random() * 256) + ")";
+              // 设置位置
+              div.style.position = 'absolute';
+              div.style.left = this.body[i].x * this.width + 'px';
+              div.style.top = this.body[i].y * this.height + 'px';
+              // 添加进去
+              map.appendChild(div);
+            }
+          }
+        }
+        // 让蛇跑起来,后一个元素到前一个元素的位置
+        // 蛇头根据方向处理，所以i不能等于0
+        this.run = function() {
+          // 后一个元素到前一个元素的位置
+          for (var i=this.body.length-1; i>0; i--) {
+            this.body[i].x = this.body[i-1].x;
+            this.body[i].y = this.body[i-1].y;
+          }
+          
+          //蛇头的值根据方向来加减
+          switch (this.direction) {
+            case 'left':
+              this.body[0].x -= 1; //如果向左，x就得一个一个的减一
+              break;
+            case 'right':
+              this.body[0].x += 1; //如果向右，x就是一个一个的加一
+              break;
+            case 'up':
+              this.body[0].y -= 1; //如果向上，y就是一个一个的减一
+              break;
+            case 'down':
+              this.body[0].y += 1; //如果向下，y就是一个一个的加一
+          }
+          //如果小蛇撞到墙就会死亡,判断的方法就是蛇头的x和y小于最小值和最大值
+          if (this.body[0].x < 0 || this.body[0].x > 79 || this.body[0].y < 0 || this.body[0].y > 39) {
+            clearInterval(timeId) //停止运动
+            alert('你死了!!');
+            //删除旧的
+            for (let i = 0; i < this.body.length; i++) {
+              if (this.body[i].flag != null) {
+                map.removeChild(this.body[i].flag)
+              }
+            }
+            //回到初始的状态
+            this.direction = 'right'; //起始的方向
+            //初始的蛇身节点数
+            this.body = [{
+                x: 2,
+                y: 0
+              },
+              {
+                x: 1,
+                y: 0
+              },
+              {
+                x: 0,
+                y: 0
+              }
+            ];
+            this.display()
+          }
+          // 判断蛇头吃到食物，xy坐标重合，
+          if (this.body[0].x == f.x && this.body[0].y == f.y) {
+            // 蛇加一节，因为根据最后节点定，下面display时，会自动赋值的
+            this.body.push({
+              x: null,
+              y: null,
+              flag: null
+            });
+            // 清除食物,重新生成食物
+            map.removeChild(f.flag);
+            f.display();
+          }
+          //判断，蛇吃到自己的时候，以为四个是吃不到自己的，所以从第五个开始算
+          console.log(this.body);
+          for (let a = 4; a < this.body.length; a++) {
+            if (this.body[0].x == this.body[a].x && this.body[0].y == this.body[a].y) {
+              clearInterval(timeId) //停止运动
+              console.log(this.body);
+              alert('你吃到自己了，傻逼!!');
+              //删除旧的
+              for (let i = 0; i < this.body.length; i++) {
+                if (this.body[i].flag != null) {
+                  map.removeChild(this.body[i].flag)
+                }
+              }
+              
+              //初始的蛇身节点数
+              this.body = [{
+                  x: 2,
+                  y: 0
+                },
+                {
+                  x: 1,
+                  y: 0
+                },
+                {
+                  x: 0,
+                  y: 0
+                }
+              ];
+              //回到初始的状态
+              this.direction = 'right'; //起始的方向
+              this.display()
+            }
+          }
+          
+          // 先删掉初始的蛇，在显示新蛇
+          for (var i = 0; i < this.body.length; i++) {
+            if (this.body[i].flag != null) { // 当吃到食物时，flag是等于null，且不能删除
+              map.removeChild(this.body[i].flag);
+            }
+          }
+          // 重新显示蛇
+          this.display();
+        }
+      };
+      let snake = new Snake();
+      let f = new Food();
+      snake.display(); // 初始化显示
+      f.display();
+      //创建食物的构造函数
+      function Food() {
+        this.width = 10;
+        this.height = 10;
+        this.display = function(){
+          let food = document.createElement('div');
+          this.flag = food;
+          food.style.width = this.width + 'px';
+          food.style.height = this.height + 'px';
+          food.style.borderRadius = "50%";
+          food.style.position = 'absolute';
+          food.style.background = 'red';
+          //随机生成0到80和0到40之间的数字
+          this.x = Math.floor(Math.random() * 80)
+          this.y = Math.floor(Math.random() * 40)
+          food.style.left = this.x * this.width + 'px';
+          food.style.top = this.y * this.height + 'px';
+          map.appendChild(food)
+        } 
+      }
+      // 给body加按键事件，上下左右
+      document.body.onkeydown = function(e) {
+        console.log(e.keyCode);
+        switch (e.keyCode) {
+          case 38:
+            if (snake.direction != 'down') { // 不允许返回，向上的时候不能向下
+              snake.direction = "up";
+            }
+            break;
+          case 40:
+            if (snake.direction != "up") {
+              snake.direction = "down";
+            }
+            break;
+          case 37:
+            if (snake.direction != "right") {
+              snake.direction = "left";
+            }
+            break;
+          case 39:
+            if (snake.direction != "left") {
+              snake.direction = "right";
+            }
+            break;
+        }
+      };
+      // 点击开始时，动起来
+      let btn = document.getElementById('btn');
+      let zt = document.getElementById('zanting');
+      let timeId;
+      // 游戏开始的点击事件
+      btn.onclick = function() {
+        clearInterval(timeId);
+        this.innerHTML = '开始游戏'
+        timeId = setInterval("snake.run()", 200); // 小技巧，每100毫秒执行字符串，字符串执行内部代码
+      };
+      //游戏暂停的点击事件
+      zt.onclick = function(){
+        clearInterval(timeId);
+        btn.innerText = '继续游戏'
+      }
+      //2，配置蛇一个小节点的大小，为一个单位，用二维数组的方式进行装取小蛇的各个节点的坐标
+      //3，封装几个函数，一，用来装取初始位置的蛇，二，用来封装运动的函数，三，封装蛇吃一个食物往数组里面添加一个节点的函数，四，封装一个随机生成食物的函数，
+      //4，封装初始位置的函数
+      //5，封装蛇吃一个食物往数组里面添加一个节点的函数
+      //6，用来封装运动的函数
+      //7，封装一个随机生成食物的函数
+      //8，用定时器来控制运动的函数
+    </script>
+  </body>
+</html>

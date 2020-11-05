@@ -59,6 +59,13 @@
 			let grid = init_grid(); //初始化
 			let count = document.getElementById('count'); //剩余雷数
 			let time = document.getElementById('time'); //计时
+			let timeId = null;
+			let a = 0;
+			timeId = setInterval(function(){
+				a++;
+				time.innerHTML = a;
+			},1000)
+			
 
 			//初始化矩阵 (row-行数 col-列数)
 			function init_grid() {
