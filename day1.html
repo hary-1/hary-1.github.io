@@ -10,5 +10,13 @@
     <img src="./img/01.png" alt="">
     <img src="./img/02.png" alt="">
     <img src="./img/03.png" alt="">
+    <script type="text/javascript">
+      window.onload = function(){
+        let token = window.localStorage.getItem('token')
+        if(token != 'lizefeng'){
+          window.location.href = 'index.html'
+        }
+      }
+    </script>
 </body>
 </html>
