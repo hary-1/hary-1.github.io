@@ -3,7 +3,7 @@ let val = document.getElementById('input')
      btn.onclick=function(){
        if(val.value == 'wx'){
          window.location.href = 'day1.html'
-         window.localStorage.setItem('token','lizefeng')
+         window.sessionStorage.setItem('token','lizefeng')
        }else{
          val.value = ''
          alert('密码错误')
