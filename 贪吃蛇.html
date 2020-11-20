@@ -210,6 +210,7 @@
       // 给body加按键事件，上下左右
       document.body.onkeydown = function(e) {
         console.log(e.keyCode);
+        //方向控制的判断，按下上方向键的时候需要判断运动的方向是否是下，如果为下，那么不被执行，运动的方向就相当于一个标识符
         switch (e.keyCode) {
           case 38:
             if (snake.direction != 'down') { // 不允许返回，向上的时候不能向下
