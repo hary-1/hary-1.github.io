@@ -69,10 +69,10 @@
           '再来一次吧',
           '再来一次把',
           '傻逼还想中将去死吧',
-          'https://hary-1.github.io/ 惊喜密码"wx""'
+          '惊喜密码"wx"'
         ]
-        let index = Math.floor(Math.random() * 66)
-        if (index === 65) {
+        let index = Math.floor(Math.random() * 67)
+        if (index === 66) {
           a.innerHTML = arr[index]
         } else {
           box.innerHTML = arr[index]
