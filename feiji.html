@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      #box {
+        height: 768px;
+        width: 512px;
+      }
+      #canvas,
+      #canvas2,
+      #canvas3,
+      #canvas4 {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      #txt {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: #ffffff;
+        font-size: 15px;
+      }
+      #gai {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 768px;
+        width: 512px;
+        display: none;
+      }
+      .head {
+        color: #ffffff;
+        width: 100%;
+        /* height: 200px; */
+        text-align: center;
+      }
+      .head p {
+        text-align: left;
+        margin-left: 100px;
+        margin-top: 150px;
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+      .head #txt2 {
+        color: red;
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .head #txt3 {
+        color: orange;
+        font-size: 22px;
+        font-weight: 700;
+      }
+      #btn {
+        display: block;
+        background-color: orange;
+        margin: 20px auto;
+        width: 100px;
+        height: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="box">
+      <!-- 背景图画布 -->
+      <canvas id="canvas" width="512" height="768"></canvas>
+      <!-- 飞机 -->
+      <canvas id="canvas2" width="512" height="768"></canvas>
+      <!-- 子弹 -->
+      <canvas id="canvas3" width="512" height="768"></canvas>
+      <!-- 敌机 -->
+      <canvas id="canvas4" width="512" height="768"></canvas>
+    </div>
+    <!-- 遮罩层 -->
+    <div id="gai">
+      <div class="head">
+        <p>您的最终得分是：</p>
+        <span id="txt2">4</span>
+      </div>
+      <div class="head">
+        <p>获得称号：</p>
+        <span id="txt3">就这？</span>
+      </div>
+      <button id="btn">重新开始</button>
+    </div>
+    <span id="txt">分数:0</span>
+    <script>
+      let btn = document.getElementById('btn')
+      let num = document.getElementById('txt')
+      let gai = document.getElementById('gai')
+      let txt = document.getElementById('txt2')
+      // 声明四个id表示子弹运动定时器和生成定时器还有敌机的生成和运动的定时器id
+      let fireId = null // 子弹的生成id
+      let firemId = null // 子弹的运动id
+      let smallId = null // 敌机的生成id
+      let smallmId = null // 敌机的运动id
+      //1， 先让背景移动起来
+      let canvas = document.getElementById('canvas')
+      let ctx = canvas.getContext('2d')
+      // 先把图像绘制上
+      let bgImage = new Image()
+      bgImage.src = './img/bg_1.jpg'
+      // 图片加载出来之后
+      bgImage.onload = function () {
+        // 调用方法
+        backgroundMove()
+      }
+      let y = 0
+      function backgroundMove () {
+        // 记录状态
+        // ctx.save()
+        // 先清除
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        // ctx.translate(0, y)
+        // 绘制图片
+        ctx.drawImage(bgImage, 0, y)
+        ctx.drawImage(bgImage, 0, -canvas.height + y)
+        y++
+        // 判断y的偏移量
+        if (y >= canvas.height) {
+          y = 0
+        }
+        // ctx.restore()
+        // 使用关键帧动画方法来调用这个运动的方法
+        window.requestAnimationFrame(backgroundMove)
+      }
+      // 2，创建飞机 创建一个构造函数 用来创建飞机
+      let canvas2 = document.getElementById('canvas2')
+      let ctx2 = canvas2.getContext('2d')
+      let img = './img/plane_0.png'
+
+      function Plane (w, h, ctx, canvas, imgUrl) {
+        // 2.1要求把飞机设置在中间最下面的位置 把飞机的x坐标和y坐标  存在这个构造函数实例对象的x和y属性里，便于后面子弹创建需要获取坐标
+        // 先获取飞机在x位置 用这个画布的一半 减去飞机的一半 就是x坐标
+        let canvasWidth = canvas.width / 2 - w / 2
+        // y 就是画布高减一个飞机的高 就是y坐标
+        let canvasHeight = canvas.height - h - 20
+        // console.log(canvasWidth)
+        let hero = new Hero(w, h, canvasWidth, canvasHeight, img)
+        return hero
+      }
+      function Hero (w, h, x, y, imgUrl) {
+        this.w = w // 飞机对象的宽
+        this.h = h // 飞机对象的高
+        this.x = x // 飞机对象的x坐标
+        this.y = y // 飞机对象的y坐标
+        this.img = new Image()
+        this.img.src = imgUrl
+      }
+      // 飞机的绘制方法
+      Hero.prototype.drawHero = function (canvas, x, y) {
+        if (x) {
+          this.x = x
+        }
+        if (y) {
+          this.y = y
+        }
+        let ctx = canvas.getContext('2d')
+        ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
+      }
+      let hero = Plane(97, 97, ctx2, canvas2, img)
+      console.log(hero)
+      hero.drawHero(canvas2)
+      // 3，使飞机随着鼠标动起来
+      document.getElementById('box').onmousemove = function (e) {
+        // 先清除原来的
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
+        // 3.1 先获取鼠标在画布上的坐标
+        let x = e.clientX - 97 / 2 // 鼠标x的坐标
+        let y = e.clientY - 97 / 2 // 鼠标y的坐标
+        // 3.2 把鼠标的坐标赋值给飞机  这里需要注意的是 鼠标要在飞机的中间  这一块和放大镜的小方块移动差不多的原理
+        // 构造新的
+        hero.x = x
+        hero.y = y
+        hero.drawHero(canvas2, hero.x, hero.y)
+      }
+      console.log(hero)
+      // 4，画子弹
+      // 声明一个数组用来装取子弹
+      let arr = []
+      let canvas3 = document.getElementById('canvas3')
+      let ctx3 = canvas3.getContext('2d')
+      let img3 = './img/fire.png'
+      // 把每次生成的子弹对象添加在数组中
+      fireId = setInterval(function () {
+        let fire = CreateFire(59, 59, img3, hero.x, hero.y)
+        fire.draw(canvas3)
+        arr.push(fire)
+      }, 200)
+      // 子弹的运动定时器
+      firemId = setInterval(function () {
+        ctx3.clearRect(0, 0, canvas3.width, canvas3.height)
+        for (let i = 0; i < arr.length; i++) {
+          arr[i].draw(canvas3)
+          arr[i].fireMove()
+          // 5.1 这个就是给子弹y坐标进行++  在使用关键帧动画方法调用运动方法就可以运动 这里有一些判断  当子弹碰到敌机和出去的时候消失的一些if判断
+          //     这里就要用遍历数组，给每一个子弹进行判断  如果有达到消失条件  就从数组中删除这个元素 子弹对象
+          if (arr[i].y < 0) {
+            arr.splice(i, 1)
+          }
+        }
+      }, 30)
+      // fireMove()
+      // 4.1 这个子弹是根据飞机的位置来设置子弹的位置 所以用一个构造函数来创建子弹  要传一些参数  必须有飞机的this.x的值和this.y的值，根据这些值在进行一些小判断 来达到最终子弹的位置
+      function CreateFire (w, h, imgUrl, x, y) {
+        // 判断子弹的x坐标和y坐标 子弹的位置要在飞机的正中的上方
+        let wx = x + 97 / 2 - w / 2 // 子弹的x坐标
+        let wy = y - 50 // 子弹的y坐标
+        // 绘制子弹的方法c
+        let cfire = new Fire(w, h, imgUrl, wx, wy)
+        return cfire
+      }
+      // 子弹的构造函数
+      function Fire (w, h, imgUrl, wx, wy) {
+        this.w = w // 子弹的宽度
+        this.h = h // 子弹的高度
+        this.img = new Image()
+        this.img.src = imgUrl
+        this.x = wx
+        this.y = wy
+      }
+      Fire.prototype.draw = function (canvas) {
+        let ctx = canvas.getContext('2d')
+        ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
+      }
+      Fire.prototype.fireMove = function () {
+        this.y -= 15
+      }
+      // 6，敌机的创建
+      // 声明一个变量来表示分数
+      let fs = 0
+      let canvas4 = document.getElementById('canvas4')
+      let ctx4 = canvas4.getContext('2d')
+      let img4 = './img/enemy_small.png'
+      let img5 = './img/enemy_big.png'
+      // 用来装取敌机
+      let enemyarr = []
+      let a = 0
+      smallId = setInterval(function () {
+        a++
+        if (a % 10 === 0) {
+          let small = createEnemy(130, 100, img5, 10)
+          small.draw(canvas4)
+          enemyarr.push(small)
+        } else {
+          let small = createEnemy(54, 40, img4, 1)
+          small.draw(canvas4)
+          enemyarr.push(small)
+        }
+      }, 500)
+      smallmId = setInterval(function () {
+        ctx4.clearRect(0, 0, canvas4.width, canvas4.height)
+        if (enemyarr) {
+          for (let i = 0; i < enemyarr.length; i++) {
+            // console.log(enemyarr)
+            // 7.2 和子弹碰撞就是消失等
+            // 要写的一些就是按照上面来写  还有需要注意的一些小细节  用一个变量来标识这个敌机什么时候消失  就是承受能力  敌机和子弹碰撞  这个标识变量就减一  为0就消失  大小飞机的最初标识值是不同的
+            if (enemyarr[i].y > canvas4.height) {
+              enemyarr.splice(i, 1)
+            }
+            // 敌机和子弹想撞时，子弹和敌机都消失,就是当子弹的的x和y坐标在敌机的x和y的坐标加他的一半宽高时
+            for (let j = 0; j < arr.length; j++) {
+              if (enemyarr[i]) {
+                if (
+                  enemyarr[i].x + enemyarr[i].w / 2 > arr[j].x &&
+                  arr[j].x > enemyarr[i].x - enemyarr[i].w / 2 &&
+                  enemyarr[i].y + enemyarr[i].h > arr[j].y &&
+                  arr[j].y > enemyarr[i].y - enemyarr[i].y / 2
+                ) {
+                  enemyarr[i].num--
+                  if (enemyarr[i].num == 0) {
+                    // 这里敌机被消灭 分数加1
+                    fs++
+                    // 绘制一个爆炸的图像
+                    let img = new Image()
+                    img.src = './img/boom_small.png'
+                    let x = enemyarr[i].x // 爆炸的x坐标
+                    let y = enemyarr[i].y // 爆炸的y坐标
+                    ctx3.drawImage(img, x, y, 64, 64)
+                    enemyarr.splice(i, 1)
+                    num.innerHTML = `分数：${fs}`
+                  } else {
+                    arr.splice(j, 1)
+                  }
+                }
+              } else {
+                return
+              }
+            }
+            // 判断当敌机和飞机相撞时  结束游戏
+            if (
+              enemyarr[i].x > hero.x - 97 / 2 &&
+              enemyarr[i].x < hero.x + 97 &&
+              enemyarr[i].y > hero.y &&
+              enemyarr[i].y < hero.y + 97 / 2
+            ) {
+              // 停止所有定时器
+              clearInterval(fireId) // 子弹的生成定时器
+              clearInterval(firemId) // 子弹的运动定时器
+              clearInterval(smallId) // 敌机的生成定时器
+              // 清空子弹的画布和数组
+              arr = []
+              ctx3.clearRect(0, 0, canvas3.width, canvas3.height)
+              // 遮罩层出来
+              txt.innerHTML = fs
+              num.innerHTML = ''
+              gai.style.display = 'block'
+              ctx2.clearRect(0, 0, canvas3.width, canvas3.height)
+            }
+            enemyarr[i].draw(canvas4)
+            enemyarr[i].move()
+          }
+        }
+      }, 50)
+
+      function createEnemy (w, h, imgUrl, num) {
+        let x = Math.abs(Math.random() * 513 - w / 2) // 随机的x坐标
+        let small = new Enemy(w, h, imgUrl, x, num)
+        return small
+      }
+      // 6.1 创建一个构造函数  给这个敌机一个随机的x坐标  y最开始固定为0
+      function Enemy (w, h, imgUrl, x, num) {
+        this.num = num // 敌机的承受能力
+        this.x = x // 敌机的x坐标
+        this.y = 0 // 敌机的y坐标
+        this.w = w // 敌机的宽
+        this.h = h // 敌机的高
+        this.img = new Image()
+        this.img.src = imgUrl
+      }
+      Enemy.prototype.draw = function (canvas) {
+        let ctx = canvas.getContext('2d')
+        ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
+      }
+      // 7，敌机的运动
+      // 7.1 让敌机动起来和子弹类似  就是y坐标-- 如果想要难度增加就是x和y坐标的随机即可
+      Enemy.prototype.move = function () {
+        this.y += 10
+      }
+      btn.onclick = function () {
+        window.location.reload()
+      }
+      // 大飞机
+    </script>
+  </body>
+</html>
